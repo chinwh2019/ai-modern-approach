@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mastering AI Intuition</title>
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+
+<body>
+  <div id="app">
+    <div id="bg-canvas" style="position: fixed; top: 0; left: 0; z-index: -1;"></div>
+    <header class="hero">
+      <h1 class="glow-text">Mastering AI Intuition</h1>
+      <p class="subtitle">Interactive explorations of Search, MDPs, and Reinforcement Learning</p>
+    </header>
+
+    <main class="container">
+      <div class="card-grid">
+        <a href="/search.html" class="card">
+          <div class="card-icon">🔍</div>
+          <h2>Search Algorithms</h2>
+          <p>Explore BFS, DFS, UCS, and A* in interactive grid worlds.</p>
+        </a>
+
+        <a href="/mdp.html" class="card">
+          <div class="card-icon">🎲</div>
+          <h2>Markov Decision Processes</h2>
+          <p>Tune transition probabilities and rewards to see optimal policies emerge.</p>
+        </a>
+
+        <a href="/rl.html" class="card">
+          <div class="card-icon">🤖</div>
+          <h2>Reinforcement Learning</h2>
+          <p>Train agents using Q-Learning and Value Iteration in real-time.</p>
+        </a>
+      </div>
+    </main>
+
+    <footer>
+      <p>Built with Vite, p5.js, D3.js, and Chart.js</p>
+    </footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reinforcement Learning - AI Intuition</title>
+    <link rel="stylesheet" href="./src/style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-logo">AI Intuition</a>
+        <div class="nav-links">
+            <a href="/search.html">Search</a>
+            <a href="/mdp.html">MDPs</a>
+            <a href="/rl.html" class="active">RL</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>Reinforcement Learning</h1>
+            <p>Train an agent to navigate the grid.</p>
+
+            <div class="control-group">
+                <label for="method-select">Method</label>
+                <select id="method-select">
+                    <option value="qlearning">Q-Learning</option>
+                    <option value="valueiteration">Value Iteration</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Learning Rate ($\alpha$)</label>
+                <input type="range" id="alpha-slider" min="0" max="1" step="0.01" value="0.1">
+
+                <label>Exploration ($\epsilon$)</label>
+                <input type="range" id="epsilon-slider" min="0" max="1" step="0.01" value="0.1">
+
+                <label>Training Speed: <span id="speed-val">1x</span></label>
+                <input type="range" id="speed-slider" min="1" max="50" step="1" value="1">
+            </div>
+
+            <div class="control-group">
+                <button type="button" id="btn-train" class="btn primary">Start Training</button>
+                <button type="button" id="btn-test" class="btn secondary">Test Policy</button>
+                <button type="button" id="btn-step" class="btn secondary">Step (Debug)</button>
+                <button type="button" id="btn-reset" class="btn secondary">Reset</button>
+            </div>
+
+            <div class="control-group" style="display: flex; gap: 0.5rem;">
+                <button type="button" id="btn-save" class="btn secondary small">Save Policy</button>
+                <button type="button" id="btn-load" class="btn secondary small">Load Policy</button>
+            </div>
+
+            <div class="info-box" id="inspector-box" style="display:none;">
+                <h3>Inspector</h3>
+                <p id="inspector-content">Hover over a cell...</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="reward-chart"></canvas>
+            </div>
+
+            <div class="info-box">
+                <h3>Algorithm Guide</h3>
+                <ul class="algo-list">
+                    <li><strong>Q-Learning</strong>: Model-free. The agent explores and learns from experience (trial
+                        and error).</li>
+                    <li><strong>Value Iteration</strong>: Model-based. Computes the optimal policy by planning (knowing
+                        the rules).</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>Parameters</h3>
+                <ul class="algo-list">
+                    <li><strong>Learning Rate ($\alpha$)</strong>: How fast new info overrides old info.</li>
+                    <li><strong>Exploration ($\epsilon$)</strong>: Chance to take a random action (explore) vs best
+                        action (exploit).</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <div id="rl-canvas-container"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/rl.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MDPs - AI Intuition</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-logo">AI Intuition</a>
+        <div class="nav-links">
+            <a href="/search.html">Search</a>
+            <a href="/mdp.html" class="active">MDPs</a>
+            <a href="/rl.html">RL</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>Markov Decision Processes</h1>
+            <p>Modify transitions and rewards to see the optimal policy.</p>
+
+            <div class="control-group">
+                <label for="gamma-slider">Discount Factor ($\gamma$): <span id="gamma-val">0.9</span></label>
+                <input type="range" id="gamma-slider" min="0" max="1" step="0.01" value="0.9">
+            </div>
+
+            <div class="info-box">
+                <h3>Bellman Equation</h3>
+                <div id="bellman-eq"></div>
+                <p class="small-text">
+                    The value of a state $V(s)$ is the maximum expected future reward.
+                    $\gamma$ (Gamma) controls how much future rewards matter.
+                    If $\gamma \approx 0$, the agent is short-sighted.
+                    If $\gamma \approx 1$, it cares about long-term rewards.
+                </p>
+            </div>
+
+            <div class="control-group">
+                <label>MDP Grid Editor</label>
+                <div class="terrain-selector">
+                    <button class="btn-terrain active" data-type="empty">Empty</button>
+                    <button class="btn-terrain" data-type="ice">Ice (Slip 50%)</button>
+                    <button class="btn-terrain" data-type="fire">Fire (-50)</button>
+                    <button class="btn-terrain" data-type="gold">Gold (+50)</button>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <button id="btn-run-policy" class="btn primary small">Run Policy</button>
+                    <button id="btn-manual-mode" class="btn secondary small">Manual Mode</button>
+                    <button id="btn-reset-mdp" class="btn secondary small">Reset</button>
+                </div>
+                <p id="sim-status" class="small-text" style="height: 1.2em;">Ready</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Instructions</h3>
+                <ul class="algo-list">
+                    <li>Adjust <strong>Discount Factor ($\gamma$)</strong> to see how the optimal policy (arrows)
+                        changes.</li>
+                    <li>High $\gamma$ encourages reaching the distant Goal (Reward 100).</li>
+                    <li>Low $\gamma$ might prefer immediate small rewards or avoiding risk.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <div id="mdp-viz"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/mdp.js"></script>
+</body>
+
+</html>

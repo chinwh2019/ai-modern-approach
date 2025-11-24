@@ -1,0 +1,20 @@
+{
+  "name": "holographic-cosmos",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "d3": "^7.9.0",
+    "katex": "^0.16.25",
+    "p5": "^2.1.1"
+  }
+}

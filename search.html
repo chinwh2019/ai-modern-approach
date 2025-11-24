@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Algorithms - AI Intuition</title>
+    <link rel="stylesheet" href="./src/style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-logo">AI Intuition</a>
+        <div class="nav-links">
+            <a href="/search.html" class="active">Search</a>
+            <a href="/mdp.html">MDPs</a>
+            <a href="/rl.html">RL</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>Search Algorithms</h1>
+            <p>Visualize how different algorithms explore the state space.</p>
+
+            <div class="control-group">
+                <label for="algo-select">Algorithm</label>
+                <select id="algo-select">
+                    <option value="bfs">Breadth-First Search (BFS)</option>
+                    <option value="dfs">Depth-First Search (DFS)</option>
+                    <option value="ucs">Uniform-Cost Search (UCS)</option>
+                    <option value="astar">A* Search</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="btn-run" class="btn primary">Run Search</button>
+                <button id="btn-reset" class="btn secondary">Reset Grid</button>
+            </div>
+
+            <div class="control-group">
+                <button id="btn-rand-map" class="btn secondary small">Randomize Map</button>
+                <button id="btn-rand-pos" class="btn secondary small">Randomize Positions</button>
+            </div>
+
+            <div class="control-group">
+          <label>Terrain Type (Click to Paint)</label>
+          <div class="terrain-selector">
+            <button class="btn-terrain active" data-type="wall">Wall (Block)</button>
+            <button class="btn-terrain" data-type="mud">Mud (Cost 5)</button>
+            <button class="btn-terrain" data-type="water">Water (Cost 10)</button>
+            <button class="btn-terrain" data-type="empty">Grass (Cost 1)</button>
+          </div>
+        </div>
+        
+            <div class="stats-panel">
+                <p>Nodes Visited: <span id="stats-visited">0</span></p>
+                <p>Path Cost: <span id="stats-cost">0</span></p>
+            </div>
+
+            <div class="info-box">
+                <h3>Algorithm Guide</h3>
+                <ul class="algo-list">
+                    <li><strong>BFS</strong>: Explores all neighbors at depth d before d+1. Optimal for unweighted
+                        graphs.</li>
+                    <li><strong>DFS</strong>: Explores as far as possible along each branch before backtracking. Not
+                        optimal.</li>
+                    <li><strong>UCS</strong>: Expands the least cost node. Optimal for weighted graphs.</li>
+                    <li><strong>A*</strong>: Uses heuristic (Manhattan distance) to guide search. Optimal and efficient.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <div id="canvas-container"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/search.js"></script>
+</body>
+
+</html>
