@@ -5,7 +5,9 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mastering AI Intuition</title>
+  <meta name="description"
+    content="Learn AI concepts through interactive visualizations. Explore Search Algorithms, Markov Decision Processes, and Reinforcement Learning with hands-on demos." />
+  <title>AI Intuition - Interactive Learning Platform</title>
   <link rel="stylesheet" href="./src/style.css" />
 </head>
 
@@ -13,34 +15,62 @@
   <div id="app">
     <div id="bg-canvas" style="position: fixed; top: 0; left: 0; z-index: -1;"></div>
     <header class="hero">
-      <h1 class="glow-text">Mastering AI Intuition</h1>
-      <p class="subtitle">Interactive explorations of Search, MDPs, and Reinforcement Learning</p>
+      <h1 class="glow-text">AI Intuition</h1>
+      <p class="subtitle">Learn AI concepts through interactive visualizations</p>
+      <p style="max-width: 600px; margin: 1.5rem auto 0; font-size: 1rem; color: var(--text-secondary);">
+        Understand how intelligent systems make decisions by watching algorithms in action.
+        Build intuition for Search, Planning, and Learning through hands-on experimentation.
+      </p>
     </header>
 
     <main class="container">
+      <section style="margin-bottom: 3rem; text-align: center;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">What You'll Explore</h2>
+        <p style="max-width: 700px; margin: 0 auto; color: var(--text-secondary);">
+          Each module features real-time visualizations where you can modify parameters, edit environments,
+          and observe how different algorithms respond. Perfect for students, educators, or anyone curious about AI.
+        </p>
+      </section>
+
       <div class="card-grid">
         <a href="./search.html" class="card">
           <div class="card-icon">🔍</div>
           <h2>Search Algorithms</h2>
-          <p>Explore BFS, DFS, UCS, and A* in interactive grid worlds.</p>
+          <p>Watch BFS, DFS, UCS, and A* navigate through grid worlds. Paint obstacles and terrains to see how
+            algorithms find optimal paths.</p>
         </a>
 
         <a href="./mdp.html" class="card">
           <div class="card-icon">🎲</div>
           <h2>Markov Decision Processes</h2>
-          <p>Tune transition probabilities and rewards to see optimal policies emerge.</p>
+          <p>Visualize how agents plan under uncertainty. Adjust discount factors and edit the grid to see optimal
+            policies emerge from the Bellman equation.</p>
         </a>
 
         <a href="./rl.html" class="card">
           <div class="card-icon">🤖</div>
           <h2>Reinforcement Learning</h2>
-          <p>Train agents using Q-Learning and Value Iteration in real-time.</p>
+          <p>Train an agent in real-time using Q-Learning or Value Iteration. Watch it learn from trial and error to
+            navigate a grid world with rewards and hazards.</p>
         </a>
       </div>
+
+      <section style="margin-top: 3rem; text-align: center;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">How It Works</h2>
+        <p style="max-width: 700px; margin: 0 auto; color: var(--text-secondary);">
+          Click on any module above to start exploring. Each visualization runs entirely in your browser—no installation
+          required.
+          Adjust parameters, modify the environment, and see immediate results. All algorithms are implemented from
+          scratch
+          to help you understand how they work under the hood.
+        </p>
+      </section>
     </main>
 
     <footer>
-      <p>Built with Vite, p5.js, D3.js, and Chart.js</p>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        Interactive learning platform for AI concepts • Open source visualization demos
+      </p>
     </footer>
   </div>
   <script type="module" src="/src/main.js"></script>
