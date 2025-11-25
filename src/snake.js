@@ -5,7 +5,6 @@ import Chart from 'chart.js/auto';
 console.log('Snake RL script loaded');
 
 const sketch = (p) => {
-    console.log('Sketch initialized');
     // Configuration
     const cols = 20;
     const rows = 20;
@@ -51,17 +50,13 @@ const sketch = (p) => {
     const episodeEl = document.getElementById('episode-val');
 
     p.setup = () => {
-        console.log('p.setup called');
         const container = document.getElementById('snake-canvas-container');
         if (!container) {
-            console.error('Container not found!');
             return;
         }
-        console.log('Container found:', container.clientWidth, container.clientHeight);
 
         let w = container.clientWidth || 400;
         let h = container.clientHeight || 400;
-        console.log('Canvas size:', w, h);
 
         const canvas = p.createCanvas(w, h);
         canvas.parent('snake-canvas-container');
@@ -377,14 +372,10 @@ const sketch = (p) => {
     }
 };
 
-console.log('Instantiating p5...');
 const initP5 = () => {
     const container = document.getElementById('snake-canvas-container');
     if (container) {
-        console.log('Found container, starting p5');
         new p5(sketch, 'snake-canvas-container');
-    } else {
-        console.error('Container still not found in initP5');
     }
 };
 
