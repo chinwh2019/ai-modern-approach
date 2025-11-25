@@ -177,7 +177,7 @@ const sketch = (p) => {
     function getState() {
         // Simplified State:
         // 1. Danger [Straight, Right, Left]
-        // 2. Food Direction [Left, Right, Up, Down]
+        // 2. Food Direction Relative [Ahead, Right, Left, Behind]
 
         const head = snake[0];
 
@@ -207,13 +207,36 @@ const sketch = (p) => {
         const dangerRight = isCollision(rightPt) ? 1 : 0;
         const dangerLeft = isCollision(leftPt) ? 1 : 0;
 
-        // Food direction relative to head (absolute)
-        const foodLeft = food.x < head.x ? 1 : 0;
-        const foodRight = food.x > head.x ? 1 : 0;
-        const foodUp = food.y < head.y ? 1 : 0;
-        const foodDown = food.y > head.y ? 1 : 0;
+        // Food direction relative to head (Relative to current direction)
+        // We need to know if food is to the left, right, or straight relative to where we are going.
+        // But "Food Direction" is usually just a vector.
+        // Let's use 4 booleans: Food is Left, Food is Right, Food is Ahead, Food is Behind (relative to current dir)
 
-        return `${dangerStraight}${dangerRight}${dangerLeft}${foodLeft}${foodRight}${foodUp}${foodDown}`;
+        // Vector to food
+        const fx = food.x - head.x;
+        const fy = food.y - head.y;
+
+        // Current direction: direction.x, direction.y
+        // Left direction: direction.y, -direction.x
+        // Right direction: -direction.y, direction.x
+
+        // Dot products to check alignment
+        // Ahead: (fx, fy) . (dir.x, dir.y) > 0
+        // Right: (fx, fy) . (right.x, right.y) > 0
+        // Left: (fx, fy) . (left.x, left.y) > 0
+
+        // Actually, let's just use the 4 relative quadrants or just simple boolean flags
+
+        let isFoodAhead = (fx * direction.x + fy * direction.y) > 0 ? 1 : 0;
+        let isFoodBehind = (fx * direction.x + fy * direction.y) < 0 ? 1 : 0;
+
+        // Right vector: { x: -direction.y, y: direction.x }
+        let isFoodRight = (fx * (-direction.y) + fy * direction.x) > 0 ? 1 : 0;
+
+        // Left vector: { x: direction.y, y: -direction.x }
+        let isFoodLeft = (fx * direction.y + fy * (-direction.x)) > 0 ? 1 : 0;
+
+        return `${dangerStraight}${dangerRight}${dangerLeft}${isFoodAhead}${isFoodRight}${isFoodLeft}${isFoodBehind}`;
     }
 
     function getAction(state) {
