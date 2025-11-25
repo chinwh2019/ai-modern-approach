@@ -10,6 +10,7 @@ export default defineConfig({
                 search: resolve(__dirname, 'search.html'),
                 mdp: resolve(__dirname, 'mdp.html'),
                 rl: resolve(__dirname, 'rl.html'),
+                snake: resolve(__dirname, 'snake.html'),
             },
         },
     },

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake RL - Introduction to AI in Modern Approach</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="stylesheet" href="./src/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="./" class="nav-logo">Introduction to AI in Modern Approach</a>
+        <div class="nav-links">
+            <a href="./search.html">Search</a>
+            <a href="./mdp.html">MDPs</a>
+            <a href="./rl.html">RL</a>
+            <a href="./snake.html" class="active">Snake RL</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>Snake RL</h1>
+            <p>Train a snake to eat food using Q-Learning.</p>
+
+            <div class="control-group">
+                <div class="stats-panel">
+                    <p>Score: <span id="score-val">0</span></p>
+                    <p>High Score: <span id="high-score-val">0</span></p>
+                    <p>Episode: <span id="episode-val">0</span></p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Training Speed: <span id="speed-val">1x</span></label>
+                <input type="range" id="speed-slider" min="1" max="50" step="1" value="1">
+
+                <label>Exploration ($\epsilon$): <span id="epsilon-val">0.1</span></label>
+                <input type="range" id="epsilon-slider" min="0" max="1" step="0.01" value="0.1">
+            </div>
+
+            <div class="control-group">
+                <button type="button" id="btn-train" class="btn primary">Start Training</button>
+                <button type="button" id="btn-reset" class="btn secondary">Reset</button>
+            </div>
+
+            <div class="info-box">
+                <h3>How it Works</h3>
+                <p>The agent doesn't see the whole grid. It only sees:</p>
+                <ul class="algo-list">
+                    <li><strong>Danger</strong>: Is there a wall or tail straight, left, or right?</li>
+                    <li><strong>Food Direction</strong>: Is food to the left, right, up, or down?</li>
+                </ul>
+                <p>This simplifies the state space, allowing it to learn very quickly!</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="reward-chart"></canvas>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <div id="snake-canvas-container"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/snake.js"></script>
+</body>
+
+</html>
