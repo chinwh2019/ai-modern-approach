@@ -41,6 +41,8 @@ const sketch = (p) => {
     // DOM Elements
     const btnTrain = document.getElementById('btn-train');
     const btnReset = document.getElementById('btn-reset');
+    const btnSave = document.getElementById('btn-save');
+    const btnLoad = document.getElementById('btn-load');
     const speedSlider = document.getElementById('speed-slider');
     const speedVal = document.getElementById('speed-val');
     const epsilonSlider = document.getElementById('epsilon-slider');
@@ -77,6 +79,9 @@ const sketch = (p) => {
             chart.update();
             updateStats();
         };
+
+        btnSave.onclick = savePolicy;
+        btnLoad.onclick = loadPolicy;
 
         speedSlider.oninput = (e) => {
             speed = parseInt(e.target.value);
@@ -370,6 +375,79 @@ const sketch = (p) => {
             chart.update();
         }
     }
+    // --- Policy Management ---
+
+    function savePolicy() {
+        try {
+            const data = {
+                qTable: qTable,
+                episode: episode,
+                highScore: highScore
+            };
+            localStorage.setItem('snake_rl_policy', JSON.stringify(data));
+            console.log('Policy Saved!');
+            showNotification('Policy Saved!', 'good');
+        } catch (e) {
+            console.error('Save failed:', e);
+            showNotification('Save Failed!', 'bad');
+        }
+    }
+
+    function loadPolicy() {
+        try {
+            const dataStr = localStorage.getItem('snake_rl_policy');
+            if (!dataStr) {
+                showNotification('No Saved Policy', 'bad');
+                return;
+            }
+            const data = JSON.parse(dataStr);
+            if (data.qTable) {
+                qTable = data.qTable;
+                episode = data.episode || 0;
+                highScore = data.highScore || 0;
+                console.log('Policy Loaded!');
+                showNotification('Policy Loaded!', 'good');
+                updateStats();
+            } else {
+                throw new Error('Invalid policy data');
+            }
+        } catch (e) {
+            console.error('Load failed:', e);
+            showNotification('Load Failed!', 'bad');
+        }
+    }
+
+    let notification = { message: '', timer: 0, color: 'white' };
+
+    function showNotification(msg, type) {
+        notification.message = msg;
+        notification.timer = 120; // 2 seconds at 60fps
+        if (type === 'good') notification.color = '#00ff9d';
+        else if (type === 'bad') notification.color = '#ff4d4d';
+        else notification.color = 'white';
+    }
+
+    // Hook into draw to show notification
+    const originalDraw = p.draw;
+    p.draw = () => {
+        originalDraw();
+
+        if (notification.timer > 0) {
+            p.push();
+            p.fill(0, 0, 0, 200);
+            p.noStroke();
+            p.rectMode(p.CENTER);
+            p.rect(p.width / 2, p.height / 2, 300, 60, 10);
+
+            p.fill(notification.color);
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(24);
+            p.text(notification.message, p.width / 2, p.height / 2);
+            p.pop();
+
+            notification.timer--;
+        }
+    };
 };
 
 const initP5 = () => {
