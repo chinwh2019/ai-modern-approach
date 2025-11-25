@@ -20,6 +20,7 @@ const sketch = (p) => {
 
     // RL State
     let isTraining = false;
+    let isTesting = false;
     let episode = 0;
     let qTable = {}; // State string -> [Q(up), Q(right), Q(down), Q(left)]? 
     // Actually actions are relative: [Straight, Right, Left] to simplify?
@@ -105,10 +106,10 @@ const sketch = (p) => {
         // If speed is low, frameRate handles it. If speed is high, we loop logic.
         // Actually p5 frameRate is capped by screen refresh.
         // Better:
-        if (isTraining) {
+        if (isTraining || isTesting) {
             for (let i = 0; i < steps; i++) {
                 gameStep();
-                if (!isTraining) break;
+                if (!isTraining && !isTesting) break;
             }
         } else {
             // Manual play or paused
@@ -156,6 +157,15 @@ const sketch = (p) => {
     }
 
     function toggleTraining() {
+        if (isTesting) {
+            // If testing, stop testing
+            isTesting = false;
+            btnTrain.innerText = "Start Training";
+            btnTrain.classList.remove('secondary');
+            btnTrain.classList.add('primary');
+            return;
+        }
+
         isTraining = !isTraining;
         btnTrain.innerText = isTraining ? "Pause Training" : "Start Training";
         btnTrain.classList.toggle('primary');
@@ -282,18 +292,20 @@ const sketch = (p) => {
 
         currentEpisodeReward += reward;
 
-        // Q-Learning Update
-        const nextState = done ? null : getState(); // If done, next state doesn't matter (terminal)
-        const oldQ = qTable[state][action];
-        let maxNextQ = 0;
-        if (!done) {
-            if (!qTable[nextState]) qTable[nextState] = [0, 0, 0];
-            maxNextQ = Math.max(...qTable[nextState]);
-        }
+        // Q-Learning Update (Only if Training)
+        if (!isTesting) {
+            const nextState = done ? null : getState(); // If done, next state doesn't matter (terminal)
+            const oldQ = qTable[state][action];
+            let maxNextQ = 0;
+            if (!done) {
+                if (!qTable[nextState]) qTable[nextState] = [0, 0, 0];
+                maxNextQ = Math.max(...qTable[nextState]);
+            }
 
-        // Bellman Equation
-        const newQ = oldQ + alpha * (reward + gamma * maxNextQ - oldQ);
-        qTable[state][action] = newQ;
+            // Bellman Equation
+            const newQ = oldQ + alpha * (reward + gamma * maxNextQ - oldQ);
+            qTable[state][action] = newQ;
+        }
 
         updateStats();
     }
@@ -406,8 +418,15 @@ const sketch = (p) => {
                 episode = data.episode || 0;
                 highScore = data.highScore || 0;
                 console.log('Policy Loaded!');
-                showNotification('Policy Loaded!', 'good');
+                showNotification('Policy Loaded! Testing...', 'good');
                 updateStats();
+
+                // Auto-start Testing
+                isTesting = true;
+                isTraining = false;
+                btnTrain.innerText = "Stop Testing";
+                btnTrain.classList.remove('primary');
+                btnTrain.classList.add('secondary');
             } else {
                 throw new Error('Invalid policy data');
             }
