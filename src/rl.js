@@ -292,10 +292,10 @@ const sketch = (p) => {
             };
             localStorage.setItem('rl_policy', JSON.stringify(data));
             console.log('Policy Saved!');
-            alert('Policy Saved!'); // Feedback for user
+            showNotification('Policy Saved!', 'good');
         } catch (e) {
             console.error('Save failed:', e);
-            alert('Save failed! See console.');
+            showNotification('Save Failed!', 'bad');
         }
     }
 
@@ -303,7 +303,7 @@ const sketch = (p) => {
         try {
             const dataStr = localStorage.getItem('rl_policy');
             if (!dataStr) {
-                alert('No saved policy found.');
+                showNotification('No Saved Policy', 'bad');
                 return;
             }
             const data = JSON.parse(dataStr);
@@ -311,14 +311,14 @@ const sketch = (p) => {
                 qTable = data.qTable;
                 vTable = data.vTable;
                 console.log('Policy Loaded!');
-                alert('Policy Loaded!');
+                showNotification('Policy Loaded!', 'good');
                 p.redraw();
             } else {
                 throw new Error('Invalid policy data');
             }
         } catch (e) {
             console.error('Load failed:', e);
-            alert('Load failed! See console.');
+            showNotification('Load Failed!', 'bad');
         }
     }
 
@@ -473,8 +473,10 @@ const sketch = (p) => {
             vTable = newV;
         }
 
-        // Visualize Policy via Agent moving greedily
-        moveAgentGreedy();
+        // Visualize Policy via Agent moving greedily ONLY if testing
+        if (isTesting) {
+            moveAgentGreedy();
+        }
     }
 
     function moveAgentGreedy() {

@@ -32,6 +32,13 @@ const sketch = (p) => {
     let visitedCount = 0;
     let pathCost = 0;
 
+    // Notification
+    let notification = {
+        message: "",
+        timer: 0,
+        color: [0, 0, 0]
+    };
+
     // DOM Elements
     const algoSelect = document.getElementById('algo-select');
     const btnRun = document.getElementById('btn-run');
@@ -75,6 +82,24 @@ const sketch = (p) => {
         }
 
         drawGrid();
+
+        // Notification Overlay
+        if (notification.timer > 0) {
+            p.push();
+            p.translate(p.width / 2, p.height / 2);
+            p.noStroke();
+            p.fill(0, 0, 0, 200);
+            p.rectMode(p.CENTER);
+            p.rect(0, 0, 300, 100, 10);
+
+            p.fill(notification.color);
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(24);
+            p.text(notification.message, 0, 0);
+            p.pop();
+
+            notification.timer--;
+        }
     };
 
     p.windowResized = () => {
@@ -153,12 +178,6 @@ const sketch = (p) => {
             }
         }
 
-        // Restore walls if we wanted to keep them, but for now full reset
-        // Actually, let's keep walls if it's just a search reset? 
-        // The button says "Reset Grid", so full reset.
-        // Maybe we need a "Clear Path" vs "Clear Walls". 
-        // For now, full reset.
-
         isRunning = false;
         openSet = [];
         closedSet = [];
@@ -169,18 +188,57 @@ const sketch = (p) => {
     }
 
     function randomizeMap() {
-        resetGrid();
-        for (let i = 0; i < cols; i++) {
-            for (let j = 0; j < rows; j++) {
-                // Keep start and end clear
-                if ((i === startNode.col && j === startNode.row) ||
-                    (i === endNode.col && j === endNode.row)) continue;
+        let attempts = 0;
+        const maxAttempts = 10;
 
-                if (Math.random() < 0.3) {
-                    grid[i][j].type = 'wall';
+        while (attempts < maxAttempts) {
+            resetGrid();
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    // Keep start and end clear
+                    if ((i === startNode.col && j === startNode.row) ||
+                        (i === endNode.col && j === endNode.row)) continue;
+
+                    if (Math.random() < 0.3) {
+                        grid[i][j].type = 'wall';
+                    }
+                }
+            }
+
+            // Check solvability
+            if (checkSolvability()) {
+                return;
+            }
+            attempts++;
+        }
+
+        console.log("Could not generate solvable map in attempts, clearing path");
+        showNotification("Complex Map Generated", [255, 165, 0]);
+    }
+
+    function checkSolvability() {
+        // BFS to check if End is reachable from Start
+        let q = [grid[startNode.col][startNode.row]];
+        let visited = new Set();
+        visited.add(`${startNode.col},${startNode.row}`);
+        let found = false;
+
+        while (q.length > 0) {
+            let curr = q.shift();
+            if (curr.col === endNode.col && curr.row === endNode.row) {
+                found = true;
+                break;
+            }
+
+            let neighbors = getNeighbors(curr);
+            for (let n of neighbors) {
+                if (n.type !== 'wall' && !visited.has(`${n.col},${n.row}`)) {
+                    visited.add(`${n.col},${n.row}`);
+                    q.push(n);
                 }
             }
         }
+        return found;
     }
 
     function randomizePositions() {
@@ -214,6 +272,13 @@ const sketch = (p) => {
             attempts++;
         }
         console.log("Could not find valid start/end pair after 100 attempts");
+        showNotification("Could not find valid positions", [255, 50, 50]);
+    }
+
+    function showNotification(msg, color) {
+        notification.message = msg;
+        notification.color = color || [255, 255, 255];
+        notification.timer = 120; // 2 seconds
     }
 
     function getReachable(startNode) {
