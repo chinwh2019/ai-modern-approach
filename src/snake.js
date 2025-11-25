@@ -378,4 +378,18 @@ const sketch = (p) => {
 };
 
 console.log('Instantiating p5...');
-new p5(sketch, 'snake-canvas-container');
+const initP5 = () => {
+    const container = document.getElementById('snake-canvas-container');
+    if (container) {
+        console.log('Found container, starting p5');
+        new p5(sketch, 'snake-canvas-container');
+    } else {
+        console.error('Container still not found in initP5');
+    }
+};
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initP5();
+} else {
+    document.addEventListener('DOMContentLoaded', initP5);
+}
