@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supervised Learning - AI Intuition</title>
+    <link rel="stylesheet" href="./src/style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="./" class="nav-logo">Introduction to AI in Modern Approach</a>
+        <div class="nav-links">
+            <a href="./search.html">Search</a>
+            <a href="./mdp.html">MDPs</a>
+            <a href="./rl.html">RL</a>
+            <a href="./snake.html">Snake RL</a>
+            <a href="./supervised.html" class="active">Supervised</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>Supervised Learning</h1>
+            <p>Interactive playground for Regression and Classification.</p>
+
+            <div class="control-group">
+                <label for="task-select">Task</label>
+                <select id="task-select">
+                    <option value="regression">Linear Regression</option>
+                    <option value="classification">Binary Classification</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Learning Rate ($\alpha$)</label>
+                <input type="range" id="alpha-slider" min="0.001" max="0.1" step="0.001" value="0.01">
+                <span id="alpha-val" class="small-text">0.01</span>
+            </div>
+
+            <div class="control-group">
+                <button type="button" id="btn-train" class="btn primary">Start Training</button>
+                <button type="button" id="btn-reset" class="btn secondary">Reset Data</button>
+            </div>
+
+            <div class="info-box">
+                <h3>Instructions</h3>
+                <p id="instructions">Click on the canvas to add data points.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Model Status</h3>
+                <div id="model-status">
+                    <p>Loss: <span id="loss-val">0.00</span></p>
+                    <p>Epoch: <span id="epoch-val">0</span></p>
+                </div>
+                <div id="equation-box" style="margin-top: 10px; font-family: monospace; color: var(--accent-cyan);">
+                    <!-- Equation goes here -->
+                </div>
+            </div>
+
+            <div class="chart-container" style="height: 200px; margin-top: 1rem;">
+                <canvas id="loss-chart"></canvas>
+            </div>
+
+            <div class="info-box">
+                <h3>Concept Guide</h3>
+                <div id="concept-guide">
+                    <p><strong>Linear Regression</strong>: Finds the best-fitting line $y = mx + b$ by minimizing the
+                        error (distance) between the line and data points.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <div id="canvas-container"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/supervised.js"></script>
+</body>
+
+</html>

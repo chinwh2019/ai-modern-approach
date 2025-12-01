@@ -11,6 +11,7 @@ export default defineConfig({
                 mdp: resolve(__dirname, 'mdp.html'),
                 rl: resolve(__dirname, 'rl.html'),
                 snake: resolve(__dirname, 'snake.html'),
+                supervised: resolve(__dirname, 'supervised.html'),
             },
         },
     },
