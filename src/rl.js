@@ -1,8 +1,17 @@
 import './style.css';
 import p5 from 'p5';
 import Chart from 'chart.js/auto';
+import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 
 console.log('RL script loaded');
+
+// Auto-render LaTeX
+renderMathInElement(document.body, {
+    delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+    ]
+});
 
 // Chart Setup
 const ctx = document.getElementById('reward-chart').getContext('2d');
@@ -81,6 +90,8 @@ const sketch = (p) => {
     const methodSelect = document.getElementById('method-select');
     const alphaSlider = document.getElementById('alpha-slider');
     const epsilonSlider = document.getElementById('epsilon-slider');
+    const alphaVal = document.getElementById('alpha-val');
+    const epsilonVal = document.getElementById('epsilon-val');
 
     const speedSlider = document.getElementById('speed-slider');
     const speedVal = document.getElementById('speed-val');
@@ -115,8 +126,14 @@ const sketch = (p) => {
             method = e.target.value;
             resetSimulation();
         };
-        alphaSlider.oninput = (e) => alpha = parseFloat(e.target.value);
-        epsilonSlider.oninput = (e) => epsilon = parseFloat(e.target.value);
+        alphaSlider.oninput = (e) => {
+            alpha = parseFloat(e.target.value);
+            alphaVal.innerText = alpha;
+        };
+        epsilonSlider.oninput = (e) => {
+            epsilon = parseFloat(e.target.value);
+            epsilonVal.innerText = epsilon;
+        };
 
         speedSlider.oninput = (e) => {
             stepsPerFrame = parseInt(e.target.value);

@@ -1,8 +1,17 @@
 import './style.css';
 import p5 from 'p5';
 import Chart from 'chart.js/auto';
+import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 
 console.log('Supervised Learning script loaded');
+
+// Auto-render LaTeX
+renderMathInElement(document.body, {
+    delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+    ]
+});
 
 // Chart Setup
 const ctx = document.getElementById('loss-chart').getContext('2d');
@@ -199,6 +208,14 @@ const sketch = (p) => {
             instructions.innerText = "Click to add Red points. Hold SHIFT + Click to add Blue points.";
             conceptGuide.innerHTML = `<p><strong>Logistic Regression</strong>: Learns a probability boundary to separate two classes.</p>`;
         }
+
+        // Re-render math in concept guide
+        renderMathInElement(conceptGuide, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+            ]
+        });
     }
 
     function predictPoly(x) {
@@ -431,6 +448,17 @@ const sketch = (p) => {
         } else {
             equationBox.innerHTML = `${w1.toFixed(2)}x + ${w2.toFixed(2)}y + ${wb.toFixed(2)} = 0`;
         }
+
+        // Re-render math in equation box (if we used LaTeX there, but currently it's plain text mostly)
+        // However, if we want to support LaTeX in equation box later:
+        /*
+        renderMathInElement(equationBox, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+            ]
+        });
+        */
     }
 };
 
