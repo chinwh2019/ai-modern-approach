@@ -43,14 +43,14 @@ const lossChart = new Chart(ctx, {
 const sketch = (p) => {
     // Configuration
     let task = 'regression'; // 'regression' or 'classification'
+    let polyDegree = 1; // 1 = Linear, 2 = Quadratic, etc.
 
     // Data
     let points = []; // {x, y, label} (label for classification: 0 or 1)
 
     // Model State
-    // Regression: y = mx + b
-    let m = 0;
-    let b = 0;
+    // Regression: y = w0 + w1*x + w2*x^2 + ...
+    let weights = [];
 
     // Classification: Logistic Regression
     // z = w1*x + w2*y + wb
@@ -67,6 +67,9 @@ const sketch = (p) => {
 
     // UI Elements
     const taskSelect = document.getElementById('task-select');
+    const degreeControl = document.getElementById('degree-control');
+    const degreeSlider = document.getElementById('degree-slider');
+    const degreeVal = document.getElementById('degree-val');
     const alphaSlider = document.getElementById('alpha-slider');
     const alphaVal = document.getElementById('alpha-val');
     const btnTrain = document.getElementById('btn-train');
@@ -91,6 +94,12 @@ const sketch = (p) => {
             updateUI();
         };
 
+        degreeSlider.oninput = (e) => {
+            polyDegree = parseInt(e.target.value);
+            degreeVal.innerText = polyDegree;
+            resetModel();
+        };
+
         alphaSlider.oninput = (e) => {
             learningRate = parseFloat(e.target.value);
             alphaVal.innerText = learningRate;
@@ -112,6 +121,15 @@ const sketch = (p) => {
         if (isTraining) {
             // Speed up training
             for (let i = 0; i < 5; i++) trainStep();
+
+            // Safety Check
+            if (isNaN(loss) || !isFinite(loss)) {
+                isTraining = false;
+                btnTrain.innerText = "Start Training";
+                alert("Training diverged! Try lowering the learning rate.");
+                return;
+            }
+
             updateChart();
         }
 
@@ -159,9 +177,13 @@ const sketch = (p) => {
     }
 
     function resetModel() {
-        m = p.random(-0.5, 0.5);
-        b = p.random(0, 1);
+        // Regression: Initialize weights for polynomial
+        weights = [];
+        for (let i = 0; i <= polyDegree; i++) {
+            weights.push(p.random(-0.5, 0.5));
+        }
 
+        // Classification
         w1 = p.random(-1, 1);
         w2 = p.random(-1, 1);
         wb = p.random(-1, 1);
@@ -169,12 +191,22 @@ const sketch = (p) => {
 
     function updateUI() {
         if (task === 'regression') {
-            instructions.innerText = "Click to add points. The line will try to fit them.";
-            conceptGuide.innerHTML = `<p><strong>Linear Regression</strong>: Finds the best-fitting line $y = mx + b$ by minimizing the Mean Squared Error (MSE).</p>`;
+            degreeControl.style.display = 'block';
+            instructions.innerText = "Click to add points. The curve will try to fit them.";
+            conceptGuide.innerHTML = `<p><strong>Polynomial Regression (Degree ${polyDegree})</strong>: Fits a curve $y = w_0 + w_1x + ... + w_nx^n$. Higher degrees can fit more complex shapes but risk overfitting.</p>`;
         } else {
+            degreeControl.style.display = 'none';
             instructions.innerText = "Click to add Red points. Hold SHIFT + Click to add Blue points.";
             conceptGuide.innerHTML = `<p><strong>Logistic Regression</strong>: Learns a probability boundary to separate two classes.</p>`;
         }
+    }
+
+    function predictPoly(x) {
+        let y = 0;
+        for (let i = 0; i < weights.length; i++) {
+            y += weights[i] * Math.pow(x, i);
+        }
+        return y;
     }
 
     function trainStep() {
@@ -183,15 +215,32 @@ const sketch = (p) => {
         let totalError = 0;
 
         if (task === 'regression') {
+            // Gradient Descent for Polynomial Regression
+            // y_pred = sum(w_i * x^i)
+            // Error = (y - y_pred)
+            // dE/dw_i = -2 * Error * x^i (ignoring 2 for constant)
+            // Update: w_i += alpha * Error * x^i
+
+            // Accumulate gradients
+            let gradients = new Array(weights.length).fill(0);
+
             for (let pt of points) {
-                let y_pred = m * pt.x + b;
+                let y_pred = predictPoly(pt.x);
                 let error = pt.y - y_pred;
-
-                m += learningRate * error * pt.x;
-                b += learningRate * error;
-
                 totalError += error * error;
+
+                for (let i = 0; i < weights.length; i++) {
+                    gradients[i] += error * Math.pow(pt.x, i);
+                }
             }
+
+            // Update weights
+            for (let i = 0; i < weights.length; i++) {
+                // Scale learning rate for higher degrees to prevent explosion?
+                // Simple approach: just use global learning rate
+                weights[i] += learningRate * gradients[i];
+            }
+
             loss = totalError / points.length;
 
         } else {
@@ -205,8 +254,6 @@ const sketch = (p) => {
                 wb += learningRate * error;
 
                 // Binary Cross Entropy (approx)
-                // -[y log(p) + (1-y) log(1-p)]
-                // Avoid log(0)
                 let p_safe = Math.max(0.0001, Math.min(0.9999, pred));
                 let bce = -(pt.label * Math.log(p_safe) + (1 - pt.label) * Math.log(1 - p_safe));
                 totalError += bce;
@@ -218,27 +265,31 @@ const sketch = (p) => {
     }
 
     function updateChart() {
-        if (epoch % 5 === 0) {
+        // Throttle: Update only once every 60 frames (approx 1 sec)
+        if (epoch % 60 === 0) {
             lossChart.data.labels.push(epoch);
             lossChart.data.datasets[0].data.push(loss);
-            if (lossChart.data.labels.length > 50) {
+            if (lossChart.data.labels.length > 20) { // Keep fewer points for performance
                 lossChart.data.labels.shift();
                 lossChart.data.datasets[0].data.shift();
             }
-            lossChart.update();
+            lossChart.update('none'); // 'none' mode for performance
         }
     }
 
     function drawRegression() {
-        // Draw Line
-        let x1 = 0;
-        let y1 = p.map(b, 0, 1, p.height, 0);
-        let x2 = p.width;
-        let y2 = p.map(m * 1 + b, 0, 1, p.height, 0);
-
+        // Draw Curve
         p.stroke(0, 242, 255);
         p.strokeWeight(3);
-        p.line(x1, y1, x2, y2);
+        p.noFill();
+        p.beginShape();
+        for (let px = 0; px <= p.width; px += 5) {
+            let x = p.map(px, 0, p.width, 0, 1);
+            let y = predictPoly(x);
+            let py = p.map(y, 0, 1, p.height, 0);
+            p.vertex(px, py);
+        }
+        p.endShape();
 
         // Draw Residuals
         p.stroke(255, 50, 50, 150);
@@ -247,7 +298,7 @@ const sketch = (p) => {
             let px = p.map(pt.x, 0, 1, 0, p.width);
             let py = p.map(pt.y, 0, 1, p.height, 0);
 
-            let y_pred = m * pt.x + b;
+            let y_pred = predictPoly(pt.x);
             let py_pred = p.map(y_pred, 0, 1, p.height, 0);
 
             p.line(px, py, px, py_pred);
@@ -255,33 +306,35 @@ const sketch = (p) => {
     }
 
     function drawClassification() {
-        // Heatmap (Low Res for performance)
-        const res = 20;
-        p.noStroke();
-        for (let i = 0; i < p.width; i += res) {
-            for (let j = 0; j < p.height; j += res) {
-                let x = p.map(i + res / 2, 0, p.width, 0, 1);
-                let y = p.map(j + res / 2, p.height, 0, 0, 1);
+        // Optimized Heatmap: Draw to small image and scale up
+        const lowResW = 50;
+        const lowResH = 50;
+        const img = p.createImage(lowResW, lowResH);
+        img.loadPixels();
+
+        for (let i = 0; i < lowResW; i++) {
+            for (let j = 0; j < lowResH; j++) {
+                let x = i / lowResW;
+                let y = 1 - (j / lowResH); // Invert Y
 
                 let z = w1 * x + w2 * y + wb;
                 let pred = 1 / (1 + Math.exp(-z));
 
+                let r, g, b, a;
                 // Red (0) to Blue (1)
-                // 0.5 is white/neutral
-                let c;
                 if (pred < 0.5) {
-                    // Reddish
                     let intensity = p.map(pred, 0, 0.5, 1, 0);
-                    c = p.color(255, 77, 77, intensity * 50); // Low opacity
+                    r = 255; g = 77; b = 77; a = intensity * 50;
                 } else {
-                    // Bluish
                     let intensity = p.map(pred, 0.5, 1, 0, 1);
-                    c = p.color(0, 119, 190, intensity * 50);
+                    r = 0; g = 119; b = 190; a = intensity * 50;
                 }
-                p.fill(c);
-                p.rect(i, j, res, res);
+
+                img.set(i, j, [r, g, b, a]);
             }
         }
+        img.updatePixels();
+        p.image(img, 0, 0, p.width, p.height);
 
         // Decision Boundary (z=0)
         if (Math.abs(w2) > 0.001) {
@@ -332,7 +385,7 @@ const sketch = (p) => {
             // Prediction Tooltip
             let text = "";
             if (task === 'regression') {
-                let y_pred = m * mx + b;
+                let y_pred = predictPoly(mx);
                 text = `y = ${y_pred.toFixed(2)}`;
             } else {
                 let z = w1 * mx + w2 * my + wb;
@@ -358,7 +411,23 @@ const sketch = (p) => {
 
     function updateEquation() {
         if (task === 'regression') {
-            equationBox.innerHTML = `y = ${m.toFixed(2)}x + ${b.toFixed(2)}`;
+            // Build polynomial string
+            let str = "y = ";
+            for (let i = weights.length - 1; i >= 0; i--) {
+                let w = weights[i];
+                let sign = w >= 0 ? "+" : "-";
+                let val = Math.abs(w).toFixed(2);
+
+                if (i === weights.length - 1) {
+                    // First term (highest degree), don't show + if positive
+                    sign = w >= 0 ? "" : "-";
+                }
+
+                if (i === 0) str += `${sign} ${val}`;
+                else if (i === 1) str += `${sign} ${val}x `;
+                else str += `${sign} ${val}x^${i} `;
+            }
+            equationBox.innerHTML = str;
         } else {
             equationBox.innerHTML = `${w1.toFixed(2)}x + ${w2.toFixed(2)}y + ${wb.toFixed(2)} = 0`;
         }
