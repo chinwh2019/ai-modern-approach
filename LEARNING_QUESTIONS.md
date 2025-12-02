@@ -72,23 +72,18 @@ After exploring each module in the **Introduction to AI in Modern Approach** pla
     - Approximately how many episodes it took to learn a good policy
     - Any patterns you observed in the learning process
 
-16. **Hyperparameter Tuning**: 
-    - Train with γ = 0.5, then with γ = 0.95
-    - Compare the learned policies
-    - Which discount factor worked better for this environment? Why?
-
-17. **Save and Load**: Train a policy, save it, reset the environment, and load the saved policy. What happened? Was the loaded policy effective immediately?
+16. **Save and Load**: Train a policy, save it, reset the environment, and load the saved policy. What happened? Was the loaded policy effective immediately?
 
 ---
 
 ## Part 4: Snake RL 🐍
 
 ### Conceptual Understanding
-18. **State Representation**: The Snake agent uses a simplified 7-bit state representation. List the 7 features and explain why this representation is better than using the full grid state.
+17. **State Representation**: The Snake agent uses a simplified 7-bit state representation. List the 7 features and explain why this representation is better than using the full grid state.
 
-19. **Relative vs Absolute**: Why is using relative directions (ahead/left/right/behind) for food location better than absolute directions (north/south/east/west)?
+18. **Relative vs Absolute**: Why is using relative directions (ahead/left/right/behind) for food location better than absolute directions (north/south/east/west)?
 
-20. **Reward Structure**: The agent receives:
+19. **Reward Structure**: The agent receives:
     - +10 for eating food
     - -10 for dying
     - -0.1 for each step
@@ -96,48 +91,48 @@ After exploring each module in the **Introduction to AI in Modern Approach** pla
     Why is the small negative step penalty useful?
 
 ### Practical Observations
-21. **Training Progression**: Train a snake for at least 1000 episodes. Record:
+20. **Training Progression**: Train a snake for at least 1000 episodes. Record:
     - Highest score achieved
     - Approximate episode number when the snake first ate more than 5 foods
     - Your observations about the learning curve
 
-22. **Exploration Rate Impact**: 
+21. **Exploration Rate Impact**: 
     - Train with ε = 0.3 for 500 episodes, note the high score
     - Reset and train with ε = 0.05 for 500 episodes, note the high score
     - Which exploration rate worked better? Why might this be?
 
-23. **Policy Testing**: After training a good policy (high score > 10):
+22. **Policy Testing**: After training a good policy (high score > 10):
     - Save the policy
     - Load it and watch it play in test mode
     - Describe the snake's behavior. Does it seem "intelligent"? What strategies did it learn?
 
-24. **Failure Analysis**: Observe how your trained snake dies. What are the most common failure modes? Why do you think the agent struggles with these situations?
+23. **Failure Analysis**: Observe how your trained snake dies. What are the most common failure modes? Why do you think the agent struggles with these situations?
 
 ---
 
 ## Part 5: Synthesis and Reflection 🎓
 
 ### Cross-Module Understanding
-25. **Planning vs Learning**: Compare the MDP module (Value Iteration) with the RL module (Q-Learning). What's the fundamental difference in what information they require?
+24. **Planning vs Learning**: Compare the MDP module (Value Iteration) with the RL module (Q-Learning). What's the fundamental difference in what information they require?
 
-26. **Algorithm Selection**: For each scenario below, recommend which AI technique would be most appropriate and explain why:
+25. **Algorithm Selection**: For each scenario below, recommend which AI technique would be most appropriate and explain why:
     - a) Finding the fastest route in a GPS navigation system
     - b) Teaching a robot to play chess
     - c) Making decisions in a game where the rules are known but the best strategy is not
     - d) Navigating a maze where the layout is unknown
 
 ### Critical Thinking
-27. **State Space Challenge**: Why can't we use the same Q-Learning approach from the Snake RL module directly for a 20×20 Snake game with the full grid as the state? What would be the size of the state space?
+26. **State Space Challenge**: Why can't we use the same Q-Learning approach from the Snake RL module directly for a 20×20 Snake game with the full grid as the state? What would be the size of the state space?
 
-28. **Real-World Applications**: Choose one module and describe a real-world problem it could help solve. Be specific about:
+27. **Real-World Applications**: Choose one module and describe a real-world problem it could help solve. Be specific about:
     - The problem domain
     - How you would represent states and actions
     - What challenges you might face in applying the technique
 
 ### Personal Reflection
-29. **Most Surprising Discovery**: What was the most surprising or counterintuitive thing you learned from these modules?
+28. **Most Surprising Discovery**: What was the most surprising or counterintuitive thing you learned from these modules?
 
-30. **Further Exploration**: If you could add one new feature or experiment to any of these modules, what would it be and why?
+29. **Further Exploration**: If you could add one new feature or experiment to any of these modules, what would it be and why?
 
 ---
 
