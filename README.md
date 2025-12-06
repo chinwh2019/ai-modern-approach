@@ -47,6 +47,14 @@ A Snake game environment demonstrating Q-Learning with simplified state represen
 - **Test Mode**: Automatically runs the agent without further learning after loading a policy
 - **Real-time Visualization**: Watch the snake learn and improve over time
 
+### 🌀 Unsupervised Learning
+Interactive K-Means clustering playground to discover patterns in data:
+- **K-Means Algorithm**: Visualize assignment and update steps in real-time
+- **Interactive Data**: Paint data points directly on the canvas
+- **Live Metrics**: Track Convergence and Inertia (Total Error)
+- **Datasets**: Presets for Random, Blobs, Rings (failure case), and Smiley
+- **Adjustable K**: Dynamically change the number of clusters
+
 ## Technologies Used
 
 - **Vite**: Fast build tool and dev server
@@ -137,6 +145,18 @@ The built files will be in the `dist/` directory.
    - Lower exploration (ε ≈ 0.05) during later training improves performance
    - The agent uses a simplified state representation for fast learning
 
+### Unsupervised Learning
+1. **Setup**:
+   - Choose a preset (Blobs, Rings, etc.) or click on the canvas to draw points
+   - Adjust "Number of Clusters (K)" using the slider
+2. **Execution**:
+   - Click "Step" to see a single iteration
+   - Click "Run to Convergence" to animate the full process
+3. **Observation**:
+   - Watch the centroids (squares) move to the center of their clusters
+   - Observe the "Total Inertia" graph decrease as the algorithm improves
+   - Try the "Rings" preset to see where K-Means fails!
+
 ## Project Structure
 
 ```
@@ -146,12 +166,14 @@ intro-ai-modern/
 ├── mdp.html           # MDP page
 ├── rl.html            # Reinforcement Learning page
 ├── snake.html         # Snake RL page
+├── unsupervised.html  # Unsupervised Learning page
 ├── src/
 │   ├── main.js        # Landing page logic
 │   ├── search.js      # Search algorithms implementation
 │   ├── mdp.js         # MDP and Value Iteration
 │   ├── rl.js          # Q-Learning implementation
 │   ├── snake.js       # Snake RL implementation
+│   ├── unsupervised.js # K-Means implementation
 │   └── style.css      # Global styles
 ├── public/
 │   └── logo.png       # Project logo
