@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unsupervised Learning (K-Means) - AI Intuition</title>
+    <link rel="stylesheet" href="./src/style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="./" class="nav-logo">Introduction to AI in Modern Approach</a>
+        <div class="nav-links">
+            <a href="./search.html">Search</a>
+            <a href="./mdp.html">MDPs</a>
+            <a href="./rl.html">RL</a>
+            <a href="./snake.html">Snake RL</a>
+            <a href="./supervised.html">Supervised</a>
+            <a href="./unsupervised.html" class="active">Unsupervised</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>The Clustering Playground</h1>
+            <p>Discover hidden structures in data using the <strong>K-Means</strong> algorithm.</p>
+
+            <div class="control-group">
+                <label for="k-slider">Number of Clusters (K): <span id="k-value">3</span></label>
+                <input type="range" id="k-slider" min="1" max="10" value="3" step="1">
+            </div>
+
+            <div class="control-group">
+                <button id="btn-step" class="btn secondary">Step</button>
+                <button id="btn-run" class="btn primary">Run to Convergence</button>
+                <button id="btn-reset" class="btn secondary">Reset Centroids</button>
+                <button id="btn-clear" class="btn danger">Clear Data</button>
+            </div>
+
+            <div class="control-group">
+                <label>Data Presets</label>
+                <div class="button-grid">
+                    <button class="btn secondary small" id="preset-random">Random</button>
+                    <button class="btn secondary small" id="preset-blobs">Blobs</button>
+                    <button class="btn secondary small" id="preset-rings">Rings (Failure Case)</button>
+                    <button class="btn secondary small" id="preset-smiley">Smiley</button>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <p>Status: <span id="status-text">Ready</span></p>
+                <p>Iterations: <span id="stats-iter">0</span></p>
+                <p>Total Inertia: <span id="stats-inertia">0.00</span></p>
+            </div>
+
+            <div class="chart-container" style="height: 200px; margin-top: 1rem;">
+                <canvas id="loss-chart"></canvas>
+            </div>
+
+            <div class="info-box">
+                <h3>K-Means Intuition</h3>
+                <ul class="algo-list">
+                    <li><strong>Goal</strong>: Partition data into <em>K</em> clusters to minimize the variance within
+                        each cluster.</li>
+                    <li><strong>Step 1 (Assignment)</strong>: Assign each point to the nearest centroid.</li>
+                    <li><strong>Step 2 (Update)</strong>: Move centroids to the average position of their assigned
+                        points.</li>
+                    <li><strong>Interactive</strong>: Click on the canvas to add your own data points!</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <div id="canvas-container"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/unsupervised.js"></script>
+</body>
+
+</html>

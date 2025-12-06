@@ -12,6 +12,7 @@ export default defineConfig({
                 rl: resolve(__dirname, 'rl.html'),
                 snake: resolve(__dirname, 'snake.html'),
                 supervised: resolve(__dirname, 'supervised.html'),
+                unsupervised: resolve(__dirname, 'unsupervised.html'),
             },
         },
     },
