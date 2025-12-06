@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural Network Playground - AI Intuition</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <style>
+        .network-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .layer-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Override Viz Panel to allow vertical stack for this module if needed */
+        .viz-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #network-viz {
+            height: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #canvas-container {
+            flex: 1;
+            min-height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="./" class="nav-logo">Introduction to AI in Modern Approach</a>
+        <div class="nav-links">
+            <a href="./search.html">Search</a>
+            <a href="./mdp.html">MDPs</a>
+            <a href="./rl.html">RL</a>
+            <a href="./snake.html">Snake RL</a>
+            <a href="./supervised.html">Supervised</a>
+            <a href="./unsupervised.html">Unsupervised</a>
+            <a href="./neural.html" class="active">Deep Learning</a>
+        </div>
+    </nav>
+
+    <main class="container split-view">
+        <section class="controls-panel">
+            <h1>Neural Network Playground</h1>
+            <p>Design your own Multi-Layer Perceptron (MLP) to solve non-linear classification problems.</p>
+
+            <div class="control-group">
+                <label>Architecture</label>
+                <div class="network-controls" id="architecture-controls">
+                    <!-- Layer controls will be injected here -->
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="btn secondary small" id="btn-add-layer">Add Hidden Layer</button>
+                    <button class="btn secondary small" id="btn-remove-layer">Remove Hidden Layer</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Training Parameters</label>
+                <div class="slider-row">
+                    <span>Learning Rate: <span id="lr-val">0.03</span></span>
+                    <input type="range" id="lr-slider" min="0.001" max="0.1" step="0.001" value="0.03">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button id="btn-train" class="btn primary">Start Training</button>
+                <button id="btn-reset" class="btn secondary">Reset Weights</button>
+            </div>
+
+            <div class="control-group">
+                <label>Data Presets</label>
+                <div class="button-grid">
+                    <button class="btn secondary small" id="preset-xor">XOR</button>
+                    <button class="btn secondary small" id="preset-circle">Circle</button>
+                    <button class="btn secondary small" id="preset-spiral">Spiral</button>
+                    <button class="btn secondary small" id="preset-moons">Moons</button>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <p>Epoch: <span id="val-epoch">0</span></p>
+                <p>Loss: <span id="val-loss">0.0000</span></p>
+            </div>
+
+            <div class="chart-container" style="height: 150px; margin-top: 1rem;">
+                <canvas id="loss-chart"></canvas>
+            </div>
+
+            <div class="info-box">
+                <h3>Deep Learning Intuition</h3>
+                <ul class="algo-list">
+                    <li><strong>Hidden Layers</strong>: Allow the network to fold and warp the input space to separate
+                        complex classes.</li>
+                    <li><strong>Activation (Tanh/ReLU)</strong>: The source of non-linearity. Without it, deep networks
+                        are just linear models!</li>
+                    <li><strong>Overfitting</strong>: Too many neurons + too few points = a jittery boundary that
+                        memorizes noise.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="viz-panel">
+            <!-- Top: 2D Classification Plane -->
+            <div id="canvas-container"></div>
+            <!-- Bottom: Network Architecture Viz -->
+            <div id="network-viz"></div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/neural.js"></script>
+</body>
+
+</html>

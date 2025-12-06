@@ -13,6 +13,7 @@ export default defineConfig({
                 snake: resolve(__dirname, 'snake.html'),
                 supervised: resolve(__dirname, 'supervised.html'),
                 unsupervised: resolve(__dirname, 'unsupervised.html'),
+                neural: resolve(__dirname, 'neural.html'),
             },
         },
     },
