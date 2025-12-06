@@ -1,4 +1,4 @@
-import './style.css'; // Ensure styles are loaded
+import './style.css';
 import p5 from 'p5';
 import Chart from 'chart.js/auto';
 
@@ -15,11 +15,15 @@ function randWeight() { return (Math.random() * 2 - 1); } // -1 to 1
 // --- Neural Network Classes (Vanilla JS Implementation) ---
 
 class Neuron {
-    constructor(inputCount) {
+    constructor(inputCount, layerIdx, neuronIdx) {
         this.weights = new Array(inputCount).fill(0).map(randWeight);
         this.bias = randWeight();
         this.output = 0;
-        this.delta = 0; // For backprop
+        this.delta = 0;
+
+        // Identity for visualization
+        this.id = `L${layerIdx}-N${neuronIdx}`;
+        this.layerIdx = layerIdx;
     }
 
     forward(inputs, activationFn) {
@@ -33,16 +37,15 @@ class Neuron {
 }
 
 class Layer {
-    constructor(neuronCount, inputCount, type = 'hidden') {
+    constructor(neuronCount, inputCount, layerIdx, type = 'hidden') {
         this.neurons = [];
         this.type = type;
         for (let i = 0; i < neuronCount; i++) {
-            this.neurons.push(new Neuron(inputCount));
+            this.neurons.push(new Neuron(inputCount, layerIdx, i));
         }
     }
 
     forward(inputs) {
-        // Output layer uses Sigmoid for classification (0-1), Hidden uses Tanh
         const actFn = (this.type === 'output') ? sigmoid : act_tanh;
         return this.neurons.map(n => n.forward(inputs, actFn));
     }
@@ -50,9 +53,8 @@ class Layer {
 
 class Network {
     constructor(layerConfig) {
-        // layerConfig example: [2, 4, 4, 1] (2 Inputs, 4 Hidden, 4 Hidden, 1 Output)
         this.layers = [];
-        this.config = [...layerConfig]; // Clone config to avoid mutation references
+        this.config = [...layerConfig];
 
         // Input layer doesn't have neurons/weights, just placeholders.
         // We start creating layers from index 1.
@@ -60,7 +62,8 @@ class Network {
             let isOutput = (i === layerConfig.length - 1);
             let inputCount = layerConfig[i - 1];
             let neuronCount = layerConfig[i];
-            this.layers.push(new Layer(neuronCount, inputCount, isOutput ? 'output' : 'hidden'));
+            // Pass actual layer index (i) mainly for ID generation
+            this.layers.push(new Layer(neuronCount, inputCount, i, isOutput ? 'output' : 'hidden'));
         }
     }
 
@@ -69,23 +72,19 @@ class Network {
         for (let layer of this.layers) {
             currentInputs = layer.forward(currentInputs);
         }
-        return currentInputs; // Final output array
+        return currentInputs;
     }
 
-    // Backpropagation
     train(inputs, target, learningRate) {
-        // 1. Forward Pass
         const outputs = this.forward(inputs);
-        const prediction = outputs[0]; // Assuming 1 output neuron for binary classification
+        const prediction = outputs[0];
 
-        // 2. Output Error
         const outputLayer = this.layers[this.layers.length - 1];
         const outputNeuron = outputLayer.neurons[0];
 
         const error = target - prediction;
         outputNeuron.delta = error * d_sigmoid(prediction);
 
-        // 3. Backpropagate to Hidden Layers
         for (let i = this.layers.length - 2; i >= 0; i--) {
             const layer = this.layers[i];
             const nextLayer = this.layers[i + 1];
@@ -93,7 +92,6 @@ class Network {
             for (let j = 0; j < layer.neurons.length; j++) {
                 const neuron = layer.neurons[j];
                 let sum = 0;
-                // Sum of weights * delta from next layer
                 for (let k = 0; k < nextLayer.neurons.length; k++) {
                     sum += nextLayer.neurons[k].weights[j] * nextLayer.neurons[k].delta;
                 }
@@ -101,23 +99,29 @@ class Network {
             }
         }
 
-        // 4. Update Weights
         let layerInputs = inputs;
         for (let i = 0; i < this.layers.length; i++) {
             const layer = this.layers[i];
             for (let neuron of layer.neurons) {
-                // Update weights
                 for (let w = 0; w < neuron.weights.length; w++) {
                     neuron.weights[w] += learningRate * neuron.delta * layerInputs[w];
                 }
-                // Update bias
                 neuron.bias += learningRate * neuron.delta;
             }
-            // Next layer's inputs are this layer's outputs
             layerInputs = layer.neurons.map(n => n.output);
         }
 
         return Math.abs(error);
+    }
+
+    countParameters() {
+        let count = 0;
+        for (let layer of this.layers) {
+            for (let neuron of layer.neurons) {
+                count += neuron.weights.length + 1; // Weights + Bias
+            }
+        }
+        return count;
     }
 }
 
@@ -125,29 +129,34 @@ class Network {
 
 const state = {
     network: null,
-    points: [], // {x, y, label}
-    config: [2, 4, 4, 1], // Default architecture
+    points: [],
+    config: [2, 4, 4, 1],
     learningRate: 0.03,
     isTraining: false,
     epoch: 0,
     loss: 0,
-    lossHistory: []
+    lossHistory: [],
+
+    // Glass Box State
+    selectedNeuron: null, // If null, show final output. If set, show this neuron's output.
+    hoverInput: null,     // {x, y} from mouse hover on main canvas
 };
 
+
 // --- Visualization Instances ---
-let mainSketch; // The classification plane
-let netSketch;  // The network architecture
+let mainSketch;
+let netSketch;
 let chartInstance = null;
 
 // --- Helper Functions ---
 
 function resetNetwork() {
-    console.log("Resetting Network...", state.config);
     state.network = new Network(state.config);
     state.epoch = 0;
     state.loss = 0;
     state.lossHistory = [];
     state.isTraining = false;
+    state.selectedNeuron = null; // Reset selection
 
     const btn = document.getElementById('btn-train');
     if (btn) btn.innerText = "Start Training";
@@ -157,15 +166,19 @@ function resetNetwork() {
         chartInstance.data.datasets[0].data = [];
         chartInstance.update();
     }
+
+    updateStats();
 }
 
 function updateStats() {
     const elEpoch = document.getElementById('val-epoch');
     const elLoss = document.getElementById('val-loss');
+    const elParams = document.getElementById('val-params');
+
     if (elEpoch) elEpoch.innerText = state.epoch;
     if (elLoss) elLoss.innerText = state.loss.toFixed(4);
+    if (elParams && state.network) elParams.innerText = state.network.countParameters();
 
-    // Update Chart
     if (state.epoch % 10 === 0 && chartInstance) {
         chartInstance.data.labels.push(state.epoch);
         chartInstance.data.datasets[0].data.push(state.loss);
@@ -216,25 +229,23 @@ function generateSpiral() {
 
 const sketchMain = (p) => {
     let img;
+    const resolution = 50;
 
     p.setup = () => {
-        // Safe element retrieval
         const container = document.getElementById('canvas-container');
-        if (!container) {
-            console.error("Canvas container not found!");
-            return;
-        }
+        if (!container) return;
         const canvas = p.createCanvas(container.clientWidth, container.clientHeight);
         canvas.parent(container);
-        img = p.createImage(50, 50);
+        img = p.createImage(resolution, resolution);
     };
 
     p.draw = () => {
         p.background(30);
 
-        if (!state.network || state.points.length === 0) return;
+        if (!state.network) return;
 
-        if (state.isTraining) {
+        // Training Step
+        if (state.isTraining && state.points.length > 0) {
             let totalErr = 0;
             const steps = 20;
             for (let s = 0; s < steps; s++) {
@@ -247,19 +258,53 @@ const sketchMain = (p) => {
             updateStats();
         }
 
-        if (state.epoch % 3 === 0 || !state.isTraining) {
+        // Draw Heatmap
+        // If a neuron is selected, we want to visualize output of THAT neuron
+        // But we need to run forward pass for every pixel effectively
+
+        const viewingNeuron = state.selectedNeuron; // null means final output
+
+        if (state.epoch % 3 === 0 || !state.isTraining || viewingNeuron) {
             img.loadPixels();
             for (let i = 0; i < img.width; i++) {
                 for (let j = 0; j < img.height; j++) {
                     const x = i / img.width;
                     const y = 1 - (j / img.height);
-                    const out = state.network.forward([x, y])[0];
-                    let r, b, a;
-                    if (out < 0.5) {
-                        r = 255; b = 77; a = p.map(out, 0.5, 0, 0, 150);
+
+                    // Run full forward pass to populate all neuron outputs
+                    const finalOuts = state.network.forward([x, y]);
+
+                    let val;
+                    if (viewingNeuron) {
+                        // Find the neuron instance in current network state and get its output
+                        // (It was updated by forward call above)
+                        val = viewingNeuron.output;
                     } else {
-                        r = 0; b = 255; a = p.map(out, 0.5, 1, 0, 150);
+                        val = finalOuts[0];
                     }
+
+                    let r, b, a;
+                    // Color Logic
+                    // For hidden neurons (Tanh), range is -1 to 1.
+                    // For output neuron (Sigmoid), range is 0 to 1.
+
+                    if (viewingNeuron && viewingNeuron.layerIdx < state.config.length - 1) {
+                        // Tanh Range (-1 to 1)
+                        // -1 -> Red, 1 -> Blue, 0 -> Transparent/Black
+                        if (val < 0) {
+                            r = 255; b = 0; a = p.map(val, 0, -1, 0, 200);
+                        } else {
+                            r = 0; b = 255; a = p.map(val, 0, 1, 0, 200);
+                        }
+                    } else {
+                        // Sigmoid Range (0 to 1) -> typical binary class logic
+                        if (val < 0.5) {
+                            r = 255; b = 77; a = p.map(val, 0.5, 0, 0, 150);
+                        } else {
+                            r = 0; b = 255; a = p.map(val, 0.5, 1, 0, 150);
+                        }
+                    }
+
                     img.set(i, j, [r, 77, b, a + 50]);
                 }
             }
@@ -276,6 +321,17 @@ const sketchMain = (p) => {
             const px = pt.x * p.width;
             const py = (1 - pt.y) * p.height;
             p.circle(px, py, 12);
+        }
+
+        // Handle Mouse Hover for "Live Activation"
+        if (p.mouseX > 0 && p.mouseX < p.width && p.mouseY > 0 && p.mouseY < p.height) {
+            const hx = p.mouseX / p.width;
+            const hy = 1 - (p.mouseY / p.height);
+            state.hoverInput = { x: hx, y: hy };
+            // Run forward pass once for this point so network state reflects it
+            state.network.forward([hx, hy]);
+        } else {
+            state.hoverInput = null;
         }
     };
 
@@ -295,6 +351,9 @@ const sketchMain = (p) => {
 };
 
 const sketchNet = (p) => {
+    // We need to store node positions to detect clicks
+    let nodePositions = [];
+
     p.setup = () => {
         const container = document.getElementById('network-viz');
         if (!container) return;
@@ -306,16 +365,22 @@ const sketchNet = (p) => {
         p.clear();
         if (!state.network) return;
 
+        // "Live Activation" Logic
+        // If hovering, we use the current state of neurons (updated by mainSketch hover)
+        // If NOT hovering, visualization might be static or flickering with training.
+        // Let's stick to showing whatever is in neuron.output. 
+
         const allLayers = [state.config[0]].concat(state.network.layers.map(l => l.neurons.length));
         const layerGap = p.width / (allLayers.length + 1);
+
+        nodePositions = []; // Reset for this frame
 
         // Connections
         for (let i = 1; i < allLayers.length; i++) {
             const prevCount = allLayers[i - 1];
             const currCount = allLayers[i];
-            const currLayerObj = state.network.layers[i - 1];
+            const currLayerObj = state.network.layers[i - 1]; // Index shift in storage
 
-            // Limit visualizations for massive layers to avoid lag
             if (prevCount > 20 || currCount > 20) continue;
 
             const x1 = i * layerGap;
@@ -329,9 +394,14 @@ const sketchNet = (p) => {
                     const y2 = (curr + 1) * yStep2;
                     const w = currLayerObj.neurons[curr].weights[prev];
                     const wAbs = Math.abs(w);
+
+                    // Dim connections if hovering and they aren't active?
+                    // Complexity: just show weights for now.
+                    let connAlpha = 150;
+
                     p.strokeWeight(p.map(wAbs, 0, 5, 0.5, 4));
-                    if (w > 0) p.stroke(100, 100, 255, 150);
-                    else p.stroke(255, 100, 100, 150);
+                    if (w > 0) p.stroke(100, 100, 255, connAlpha);
+                    else p.stroke(255, 100, 100, connAlpha);
                     p.line(x1, y1, x2, y2);
                 }
             }
@@ -344,16 +414,109 @@ const sketchNet = (p) => {
             const count = allLayers[i];
             const x = (i + 1) * layerGap;
             const yStep = p.height / (count + 1);
+
             for (let j = 0; j < count; j++) {
                 const y = (j + 1) * yStep;
-                p.fill(30);
-                if (i > 0) {
+
+                // Determine color
+                // Input nodes: just show input value if hovering
+                let val = 0;
+                let isSelected = false;
+
+                if (i === 0) {
+                    // Input Layer
+                    if (state.hoverInput) {
+                        val = (j === 0) ? state.hoverInput.x : state.hoverInput.y;
+                        // Map 0-1 to -1-1 for uniform color logic? or separate?
+                        // Let's keep 0-1 range for inputs
+                        const c = p.map(val, 0, 1, 0, 255);
+                        p.fill(c);
+                    } else {
+                        p.fill(50);
+                    }
+                } else {
+                    // Hidden/Output Layers
                     const neuron = state.network.layers[i - 1].neurons[j];
-                    const val = neuron.output;
-                    const c = p.map(val, -1, 1, 0, 255);
-                    p.fill(c);
+                    val = neuron.output;
+
+                    // Highlight selected
+                    if (state.selectedNeuron === neuron) {
+                        isSelected = true;
+                    }
+
+                    // Activation Color
+                    // Tanh: -1 (Red) to 1 (Blue)
+                    // Sigmoid: 0 (Red) to 1 (Blue)
+
+                    // Unified visualization: Map -1..1 range to color
+                    // For Sigmoid (0..1), 0 is "low", 1 is "high".
+                    // Let's us Blue for High, Red for Low/Negative.
+
+                    let r, b;
+                    if (val < 0) {
+                        // Negative (Tanh only really)
+                        r = p.map(val, 0, -1, 50, 255);
+                        b = 50;
+                    } else {
+                        // Positive
+                        r = 50;
+                        b = p.map(val, 0, 1, 50, 255);
+                    }
+
+                    // If not hovering and not training, dim it?
+                    // No, keeping it always visible is better for Glass Box
+                    p.fill(r, 50, b);
+
+                    // Store position for click detection
+                    nodePositions.push({
+                        x: x, y: y, r: 20,
+                        neuron: neuron // Reference to actual object
+                    });
                 }
-                p.circle(x, y, 16);
+
+                // Draw Node
+                if (isSelected) {
+                    p.stroke(255, 255, 0); // Yellow highlight for selection
+                    p.strokeWeight(3);
+                } else {
+                    p.stroke(255);
+                    p.strokeWeight(1);
+                }
+
+                p.circle(x, y, 20);
+
+                // Optional: Tooltip on hover over node?
+            }
+        }
+    };
+
+    p.mousePressed = () => {
+        // Detect click on nodes
+        let clickedNode = null;
+        console.log(`[NetViz] Click at ${p.mouseX}, ${p.mouseY}. Total nodes tracked: ${nodePositions.length}`);
+
+        for (let np of nodePositions) {
+            const d = p.dist(p.mouseX, p.mouseY, np.x, np.y);
+            // console.log(`Checking node at ${np.x}, ${np.y}, dist=${d}`); // Commented out to avoid spam
+            if (d < np.r / 2 + 5) {
+                console.log("[NetViz] Hit node!", np.neuron.id);
+                clickedNode = np.neuron;
+                break;
+            }
+        }
+
+        if (clickedNode) {
+            if (state.selectedNeuron === clickedNode) {
+                console.log("[NetViz] Deselecting neuron");
+                state.selectedNeuron = null; // Toggle off
+            } else {
+                console.log("[NetViz] Selecting neuron", clickedNode.id);
+                state.selectedNeuron = clickedNode;
+            }
+        } else {
+            if (p.mouseX > 0 && p.mouseX < p.width && p.mouseY > 0 && p.mouseY < p.height) {
+                console.log("[NetViz] Clicked background, clearing selection");
+                state.selectedNeuron = null;
             }
         }
     };
@@ -372,13 +535,11 @@ function renderLayerControls() {
     if (!container) return;
     container.innerHTML = '';
 
-    // Input Layer
     const inputDiv = document.createElement('div');
     inputDiv.className = 'layer-box';
     inputDiv.innerHTML = `<span>Inbox</span><b>2</b>`;
     container.appendChild(inputDiv);
 
-    // Hidden Layers
     for (let i = 1; i < state.config.length - 1; i++) {
         const div = document.createElement('div');
         div.className = 'layer-box';
@@ -391,33 +552,27 @@ function renderLayerControls() {
         container.appendChild(div);
     }
 
-    // Output Layer
     const outputDiv = document.createElement('div');
     outputDiv.className = 'layer-box';
     outputDiv.innerHTML = `<span>Out</span><b>1</b>`;
     container.appendChild(outputDiv);
 }
 
-// Window Globals for inline HTML events
 window.changeNeurons = (layerIdx, delta) => {
     let newVal = state.config[layerIdx] + delta;
     if (newVal < 1) newVal = 1;
     if (newVal > 8) newVal = 8;
     state.config[layerIdx] = newVal;
     resetNetwork();
-    renderLayerControls(); // Re-render to show new number
+    renderLayerControls();
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        console.log("Initializing Neural Playground...");
-
-        // 1. Setup State first
         generateXOR();
         resetNetwork();
         renderLayerControls();
 
-        // 2. Setup Chart
         const ctx = document.getElementById('loss-chart').getContext('2d');
         chartInstance = new Chart(ctx, {
             type: 'line',
@@ -425,13 +580,10 @@ document.addEventListener('DOMContentLoaded', () => {
             options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { display: false } } }
         });
 
-        // 3. Setup P5
         new p5(sketchMain);
         new p5(sketchNet);
 
-        // 4. Bind Events
         document.getElementById('btn-train').addEventListener('click', () => {
-            console.log("Train clicked!");
             state.isTraining = !state.isTraining;
             document.getElementById('btn-train').innerText = state.isTraining ? "Pause Training" : "Resume Training";
         });
