@@ -10,15 +10,8 @@ All notebooks are optimized to run on **Google Colab**.
 
 ### 1. Google Colab
 *   These notebooks are hosted on GitHub but are best run in the cloud using Google Colab.
-*   **No Setup Required**: You do not need to install python or libraries locally. The notebooks install everything they need (or use standard libraries).
+*   **No Setup Required**: You do not need to install python or libraries locally. The notebooks install everything they need (or use libraries available in Colab).
 *   **Data**: The notebooks automatically download required datasets from the web or generate synthetic data if you are offline.
-
-### 2. Common Libraries
-You will frequently see these libraries:
-*   `pandas`: For data manipulation (like Excel for Python).
-*   `numpy`: For math and matrix operations.
-*   `matplotlib` / `seaborn`: For visualization and plotting graphs.
-*   `scikit-learn` (`sklearn`): The industry standard for classical machine learning algorithms.
 
 ---
 
@@ -34,67 +27,52 @@ Understand how to group unlabeled data into meaningful "clusters." We use a data
 3.  **Hierarchical Clustering**: Building a tree of clusters (Dendrogram) to see data relationships at different levels.
 
 ### 👣 Step-by-Step Walkthrough
-
-#### Step 1: Data Preparation
-*   We load the "Mall Customers" dataset.
-*   **Synthetic Fallback**: If the internet is down or the dataset URL changes, the notebook detects this and automatically generates "fake" mall data so you can still learn the concepts!
-
-#### Step 2: The Elbow Method (Finding K)
-*   **Question**: How many groups of customers are there? 3? 5? 10?
-*   **Logic**: We run K-Means for $K=1$ to $K=10$ and calculate the **WCSS** (Within-Cluster Sum of Squares). This measures how "tight" the clusters are.
-*   **Visual**: Look for the "elbow" (bend) in the graph. Adding more clusters after this point gives diminishing returns. Usually, **K=5** is the sweet spot for this dataset.
-
-#### Step 3: Training the Model
-*   We initialize `KMeans(n_clusters=5)` and fit it to our Income/Score data.
-*   The model assigns a cluster label (0-4) to every customer.
-
-#### Step 4: Visualization
-*   The final plot shows customers colored by their group.
-*   **Interpretation**:
-    *   **High Income, Low Spending**: "Misers" (Potential savers).
-    *   **High Income, High Spending**: "Target" (VIPs).
-    *   **Low Income, High Spending**: "Careless" (Risk of debt).
+1.  **Data Preparation**: Load "Mall Customers" data (or synthetic fallback).
+2.  **Elbow Method**: Run K-Means for various $K$ to find the "elbow" (optimal $K=5$).
+3.  **Model Training**: Fit KMeans with 5 clusters.
+4.  **Visualize**: Plot customers colored by group (e.g., "Careless", "Sensible", "Target").
 
 ---
 
-## 📒 Notebook 2: Credit Card Fraud Detection (SOMs)
+## 📒 Notebook 2: Synthetic Fraud Lab (SOMs)
+**File**: `notebooks/som_fraud_detection.ipynb`
+
+### 🎯 Goal
+A pure "Lab" environment to experiment with SOMs for anomaly detection using **Synthetic Data**. Unlike the Credit Card notebook which uses real data, this one auto-generates data, making it perfect for understanding the *theory* without data cleaning headaches.
+
+### 🧠 Key Concepts
+1.  **Synthetic Data Generation**: Using `make_blobs` to create "Normal" clusters and manually injecting "Fraud" outliers.
+2.  **Anomaly Detection**: Using the visual distance map to identify data points that don't belong.
+
+### 👣 Step-by-Step Walkthrough
+1.  **The Setup**: Notebook generates 500 normal transactions and 20 fraud cases.
+2.  **Training**: Trains a Scratch-built SOM (`SimpleSOM`) on the clean data.
+3.  **Visualizing**: Observe how outliers Map to "white" (high distance) nodes.
+4.  **Interactive Simulator**: Use sliders to create a fake transaction and see if the SOM flags it as "Suspicious" in real-time.
+
+---
+
+## 📒 Notebook 3: Credit Card Fraud Detection (SOMs)
 **File**: `notebooks/som_credit_card.ipynb`
 
 ### 🎯 Goal
-Use a **Self-Organizing Map (SOM)** to detect outliers in credit card applications. Outliers in this context are potential fraud cases.
+Apply SOMs to a **Real-World** scenario using the UCI Credit Card Applications dataset. This involves real data cleaning and deeper analysis.
 
 ### 🧠 Key Concepts
-1.  **Self-Organizing Map (SOM)**: A type of Artificial Neural Network trained using unsupervised learning to produce a low-dimensional (usually 2D) representation of the input space.
-2.  **Dimensionality Reduction**: Compressing complex data (many features like Age, Debt, Income) into a simple map.
-3.  **Outlier Detection**: Fraudulent patterns often don't fit the "normal" clusters and end up isolated.
+1.  **Dimensionality Reduction**: Compressing many features (Age, Debt, Income) into a simple 2D map.
+2.  **Outlier Detection**: Finding fraudulent applications that don't fit normal patterns.
 
 ### 👣 Step-by-Step Walkthrough
-
-#### Step 1: Data Preprocessing
-*   **Data**: The "Credit Card Applications" dataset from the UCI Machine Learning Repository.
-*   **Scaling**: SOMs are very sensitive to scale. We use `MinMaxScaler` to squeeze all values (Age 20-80, Income 0-100k) into a **0 to 1** range. This prevents high-value columns like "Income" from dominating the map.
-
-#### Step 2: Training the SOM
-*   **Custom Class**: We use a `SimpleSOM` class written from scratch! This helps you see the math inside (finding the winning neuron, updating weights).
-*   **Training**: The SOM adjusts its grid of neurons to match the shape of the data. Similar customers "pull" neurons closer to them.
-
-#### Step 3: The Distance Map (U-Matrix)
-*   **Logic**: We measure the distance between each neuron and its neighbors.
-*   **Visual**: The background of the map (dark to light).
-*   **Interpretation**:
-    *   **Dark Areas**: Neurons are close to each other. This is a dense cluster of "normal" data.
-    *   **Light/White Areas**: Large distances. These neurons are far from their neighbors. Any data point landing here is an **Outlier** (Potential Fraud).
-
-#### Step 4: Catching the Bad Guys
-*   We plot markers on the map:
-    *   **Green Squares**: Approved Applications.
-    *   **Red Circles**: Rejected Applications.
-*   **The detective work**: Look for winning neurons that are in the "White" (outlier) areas. We extract the list of customers associated with these specific neurons—these are our fraud suspects.
-
-### 💡 Tips for Students
-*   **Don't memorize code**: Focus on the *logic*. Why did we scale the data? Why did we pick K=5?
-*   **Experiment**: Try changing `n_clusters` in K-Means to 3 or 8. What happens to the customer groups? Do they still make sense?
-*   **Interactive Controls**: Use the interactive sliders in the SOM notebook to see how changing "Age" or "Income" moves your position on the risk map.
+1.  **Preprocessing**: Load real UCI data, handle missing values, and use `MinMaxScaler` (Crucial for SOMs!).
+2.  **Training**: Train the `SimpleSOM` on the complex real-world data.
+3.  **The Distance Map**: Visualize the U-Matrix. Dark areas are normal clusters; Light areas are potential outliers.
+4.  **Catching Fraud**: Identify specific neurons in outlier zones and extract the list of customers mapped to them.
 
 ---
+
+## 💡 Student Tips
+*   **Focus on Logic**: Don't just run cells. Ask "Why did we scale this data?" or "Why K=5?".
+*   **Experiment**: Change `n_clusters` or SOM grid size (e.g., 5x5 vs 20x20). What happens?
+*   **Interactive Controls**: Use the widgets in the SOM notebooks to build your intuition.
+
 Happy Coding! 🤖
