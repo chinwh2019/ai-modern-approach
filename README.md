@@ -47,6 +47,11 @@ A Snake game environment demonstrating Q-Learning with simplified state represen
 - **Test Mode**: Automatically runs the agent without further learning after loading a policy
 - **Real-time Visualization**: Watch the snake learn and improve over time
 
+### 📈 Supervised Learning
+- **Tasks**: Linear Regression (Polynomial) and Binary Classification
+- **Interactive**: Draw points, train models, see decision boundaries update live
+- **Metrics**: Real-time loss tracking and equation visualization
+
 ### 🌀 Unsupervised Learning
 Interactive K-Means clustering playground to discover patterns in data:
 - **K-Means Algorithm**: Visualize assignment and update steps in real-time
@@ -54,6 +59,12 @@ Interactive K-Means clustering playground to discover patterns in data:
 - **Live Metrics**: Track Convergence and Inertia (Total Error)
 - **Datasets**: Presets for Random, Blobs, Rings (failure case), and Smiley
 - **Adjustable K**: Dynamically change the number of clusters
+
+### 🧠 Deep Learning
+- **MLP Playground**: Build and train neural networks in the browser
+- **Glass Box Viz**: Visualize activations of every single neuron
+- **Custom Architecture**: Add/remove layers and neurons on the fly
+- **Complex Datasets**: Solve non-linear problems like XOR and Spirals
 
 ## Technologies Used
 
@@ -157,6 +168,32 @@ The built files will be in the `dist/` directory.
    - Observe the "Total Inertia" graph decrease as the algorithm improves
    - Try the "Rings" preset to see where K-Means fails!
 
+### 📈 Supervised Learning
+Interactive playground for Regression and Classification tasks:
+1. **Tasks**:
+   - **Linear Regression**: Fit a polynomial curve to data points (adjust degree 1-10)
+   - **Binary Classification**: Train a Logistic Regression model to separate two classes
+2. **Interactive Training**:
+   - Click to add data points
+   - Adjust Learning Rate ($\alpha$) dynamically
+   - Watch the loss curve and decision boundary evolve in real-time
+3. **Visualization**:
+   - **Regression**: See the curve and residual lines
+   - **Classification**: Visualized probability heatmap and decision boundary
+
+### 🧠 Deep Learning (Neural Networks)
+Design and train a Multi-Layer Perceptron (MLP) from scratch:
+1. **Glass Box Visualization**:
+   - See inside the "black box"! Every neuron's output is visualized
+   - Hover over the input space to see live activation propagation
+2. **Architecture Design**:
+   - Add/Remove hidden layers dynamically
+   - Adjust the number of neurons per layer
+3. **Training**:
+   - Train on complex non-linear datasets (XOR, Spiral, Circle)
+   - Watch weights update and the decision boundary form
+   - Observe the "Fold and Warp" effect of hidden layers
+
 ## Project Structure
 
 ```
@@ -166,14 +203,18 @@ intro-ai-modern/
 ├── mdp.html           # MDP page
 ├── rl.html            # Reinforcement Learning page
 ├── snake.html         # Snake RL page
+├── supervised.html    # Supervised Learning page
 ├── unsupervised.html  # Unsupervised Learning page
+├── neural.html        # Deep Learning page
 ├── src/
 │   ├── main.js        # Landing page logic
 │   ├── search.js      # Search algorithms implementation
 │   ├── mdp.js         # MDP and Value Iteration
 │   ├── rl.js          # Q-Learning implementation
 │   ├── snake.js       # Snake RL implementation
+│   ├── supervised.js  # Regression/Classification implementation
 │   ├── unsupervised.js # K-Means implementation
+│   ├── neural.js      # MLP implementation
 │   └── style.css      # Global styles
 ├── public/
 │   └── logo.png       # Project logo
